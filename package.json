@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/wilhelmmatilainen/pirateship",
   "dependencies": {
-    "request": "^2.34.0"
+    "request": "^2.34.0",
+    "url": "^0.7.9",
+    "async": "^0.2.10"
   }
 }
