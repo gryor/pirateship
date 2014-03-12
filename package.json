@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/wilhelmmatilainen/pirateship/issues"
   },
-  "homepage": "https://github.com/wilhelmmatilainen/pirateship"
+  "homepage": "https://github.com/wilhelmmatilainen/pirateship",
+  "dependencies": {
+    "request": "^2.34.0"
+  }
 }
