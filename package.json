@@ -26,6 +26,7 @@
   "dependencies": {
     "request": "^2.34.0",
     "url": "^0.7.9",
-    "async": "^0.2.10"
+    "async": "^0.2.10",
+    "magnet-uri": "^1.1.0"
   }
 }
