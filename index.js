@@ -198,9 +198,3 @@ function search(category, query, success, fail, tries) {
 exports.categories = categories;
 exports.top = top;
 exports.search = search;
-
-search(categories.application.unix, 'ubuntu', function(results) {
-    console.log(results);
-}, function(error) {
-    console.error(error);
-});

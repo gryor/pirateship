@@ -1,6 +1,6 @@
 {
   "name": "pirateship",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Sail in the dark waters of the PirateBay.",
   "main": "index.js",
   "scripts": {
