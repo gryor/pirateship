@@ -155,11 +155,11 @@ function parseResultsPage(body, success, fail) {
 }
 
 function top(category, success, fail, tries) {
-	fail = fail ||  perror;
+	fail = fail || perror;
 	tries = tries || 1;
 
 	if (tries > 5)
-		return fail('Can not connect to the piratebay.');
+		return fail(new Error('Can not connect to the piratebay.'));
 
 	getBestProxy(function(proxy) {
 		request({
