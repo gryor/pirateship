@@ -175,5 +175,27 @@ function top(category, success, fail, tries) {
 	}, fail);
 }
 
+function search(category, query, success, fail, tries) {
+	fail = fail || perror;
+	tries = tries || 1;
+
+	if (tries > 5)
+		return fail(new Error('Can not connect to the piratebay.'));
+
+	getBestProxy(function(proxy) {
+		request({
+			url: proxy.protocol + '//' + proxy.host + '/search/' + query + '/0/7/' + category
+		}, function(error, response, body) {
+			if (error)
+				return fail(error);
+
+			parseResultsPage(body, success, function() {
+				search(category, success, fail, ++tries);
+			});
+		});
+	}, fail);
+}
+
 exports.categories = categories;
 exports.top = top;
+exports.search = search;

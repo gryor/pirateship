@@ -19,4 +19,10 @@ pirateship.top(pirateship.categories.video.hdmovies, function(results) {
 }, function(error) {
     console.error(error);
 });
+
+pirateship.search(pirateship.categories.application.unix, 'ubuntu', function(results) {
+    console.log(results);
+}, function(error) {
+    console.error(error);
+});
 ```
