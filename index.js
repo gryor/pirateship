@@ -1,7 +1,7 @@
-var request = require(request);
-var url = require(url);
-var async = require(async);
-var magnet = require(magnet-uri);
+var request = require('request');
+var url = require('url');
+var async = require('async');
+var magnet = require('magnet-uri');
 
 var categories = {
 	audio: {
@@ -70,15 +70,15 @@ function getProxies(success, fail) {
 	fail = fail || perror;
 
 	request({
-		url: http://proxybay.info/list.txt,
+		url: 'http://proxybay.info/list.txt',
 		timeout: 60000
 	}, function(error, response, body) {
 		if (error)
 			return fail(error);
 
-		var proxies = [url.parse(http://thepiratebay.se'), url.parse('http://thepiratebay.org)];
+		var proxies = [url.parse('http://thepiratebay.se'), url.parse('http://thepiratebay.org')];
 
-		proxies = proxies.concat(body.split(\n\n')[1].split('\n).map(function(e) {
+		proxies = proxies.concat(body.split('\n\n')[1].split('\n').map(function(e) {
 			return url.parse(e);
 		}));
 
@@ -91,13 +91,13 @@ function getProxies(success, fail) {
 				(function(proxy) {
 					var start = new Date();
 					request({
-						url: proxy.protocol + // + proxy.host,
+						url: proxy.protocol + '//' + proxy.host,
 						timeout: 2000
 					}, function(error, response, body) {
 						if (error)
 							return callback();
 
-						if (body.match(title="Pirate Search") === null)
+						if (body.match('title="Pirate Search"') === null)
 							return callback();
 
 						proxy.ping = new Date() - start;
@@ -112,7 +112,7 @@ function getProxies(success, fail) {
 				return fail(error);
 
 			proxies = proxies.filter(function(proxy) {
-				return (ping in proxy);
+				return ('ping' in proxy);
 			});
 
 			proxies.sort(function(a, b) {
@@ -139,12 +139,12 @@ function getBestProxy(success, fail) {
 }
 
 function parseResultsPage(body, success, fail) {
-	if (body.match(<table id="searchResult">) !== null) {
+	if (body.match('<table id="searchResult">') !== null) {
 		success(body.match(/href="(magnet:.+?)"/g).map(function(uri) {
 			return magnet(uri);
 		}).map(function(e) {
 			if (e.dn)
-				e.dn = unescape(decodeURI(e.dn).replace(/\+/g,  ));
+				e.dn = unescape(decodeURI(e.dn).replace(/\+/g, ' '));
 
 			return e;
 		}));
@@ -158,11 +158,11 @@ function top(category, success, fail, tries) {
 	tries = tries || 1;
 
 	if (tries > 5)
-		return fail(new Error(Can not connect to the piratebay.));
+		return fail(new Error('Can not connect to the piratebay.'));
 
 	getBestProxy(function(proxy) {
 		request({
-			url: proxy.protocol + //' + proxy.host + '/top/ + category
+			url: proxy.protocol + '//' + proxy.host + '/top/' + category
 		}, function(error, response, body) {
 			if (error)
 				return fail(error);
@@ -179,17 +179,17 @@ function search(category, query, success, fail, tries) {
 	tries = tries || 1;
 
 	if (tries > 5)
-		return fail(new Error(Can not connect to the piratebay.));
+		return fail(new Error('Can not connect to the piratebay.'));
 
 	getBestProxy(function(proxy) {
 		request({
-			url: proxy.protocol + //' + proxy.host + '/search/' + query + '/0/7/ + category
+			url: proxy.protocol + '//' + proxy.host + '/search/' + query + '/0/7/' + category
 		}, function(error, response, body) {
 			if (error)
 				return fail(error);
 
 			parseResultsPage(body, success, function() {
-				search(category, success, fail, ++tries);
+				search(category, query, success, fail, ++tries);
 			});
 		});
 	}, fail);
@@ -198,3 +198,9 @@ function search(category, query, success, fail, tries) {
 exports.categories = categories;
 exports.top = top;
 exports.search = search;
+
+search(categories.application.unix, 'ubuntu', function(results) {
+    console.log(results);
+}, function(error) {
+    console.error(error);
+});
