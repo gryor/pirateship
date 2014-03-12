@@ -88,9 +88,8 @@ function getProxies(success, fail) {
 
 		proxies.forEach(function(proxy) {
 			parallel.push(function(callback) {
-				var start = new Date();
-
-				(function(proxy, start) {
+				(function(proxy) {
+					var start = new Date();
 					request({
 						url: proxy.protocol + '//' + proxy.host,
 						timeout: 2000
@@ -104,7 +103,7 @@ function getProxies(success, fail) {
 						proxy.ping = new Date() - start;
 						callback();
 					});
-				}(proxy, start));
+				}(proxy));
 			});
 		});
 
