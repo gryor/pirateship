@@ -2,6 +2,7 @@ var request = require('request');
 var url = require('url');
 var async = require('async');
 var magnet = require('magnet-uri');
+var imdb = require('imdb-api');
 
 var categories = {
 	audio: {
@@ -103,7 +104,7 @@ function getProxies(success, fail) {
 						proxy.ping = new Date() - start;
 						callback();
 					});
-				}(proxy));
+				})(proxy);
 			});
 		});
 
@@ -139,15 +140,37 @@ function getBestProxy(success, fail) {
 }
 
 function parseResultsPage(body, success, fail) {
-	if (body.match('<table id="searchResult">') !== null) {
-		success(body.match(/href="(magnet:.+?)"/g).map(function(uri) {
-			return magnet(uri);
-		}).map(function(e) {
-			if (e.dn)
-				e.dn = unescape(decodeURI(e.dn).replace(/\+/g, ' '));
+	console.log('Parsing results');
 
-			return e;
-		}));
+	if (body.match('<table id="searchResult">') !== null) {
+		var data = body.split('detName');
+		data.shift();
+
+		data = data.map(function(e) {
+			var parsed = {};
+			var match = e.match(/href="(magnet:.+?)"/);
+
+			if (match !== null) {
+				parsed.magnet = magnet(match[1]);
+
+				if ('dn' in parsed.magnet)
+					parsed.magnet.dn = unescape(decodeURI(parsed.magnet.dn).replace(/[\+\.]/g, ' '));
+			} else
+				return undefined;
+
+			match = e.match(/href="(\/torrent\/.+?)"/);
+
+			if (match !== null)
+				parsed.page = match[1];
+
+			return parsed;
+		}).filter(function(e) {
+			return e !== undefined;
+		});
+
+		console.log(data.length + ' results');
+
+		success(data);
 	} else {
 		return fail();
 	}
@@ -156,6 +179,8 @@ function parseResultsPage(body, success, fail) {
 function top(category, success, fail, tries) {
 	fail = fail || perror;
 	tries = tries || 1;
+
+	console.log('top try ' + tries);
 
 	if (tries > 5)
 		return fail(new Error('Can not connect to the piratebay.'));
@@ -178,6 +203,8 @@ function search(category, query, success, fail, tries) {
 	fail = fail || perror;
 	tries = tries || 1;
 
+	console.log('search try ' + tries);
+
 	if (tries > 5)
 		return fail(new Error('Can not connect to the piratebay.'));
 
@@ -195,6 +222,90 @@ function search(category, query, success, fail, tries) {
 	}, fail);
 }
 
+function addInfo(results, success, fail) {
+	fail = fail || perror;
+
+	getBestProxy(function(proxy) {
+		var parallel = [];
+
+		results.forEach(function(result) {
+			if ('page' in result)
+				parallel.push(function(callback) {
+					(function(result) {
+						request({
+							url: proxy.protocol + '//' + proxy.host + result.page
+						}, function(error, response, body) {
+							if (error)
+								return callback(error);
+
+							var match = body.match(/<a href="(http:\/\/www.imdb.com\/title\/.+?\/)"/);
+
+							if(match !== null)
+								result.imdburl = url.parse([1]);
+							
+							callback();
+						});
+					})(result);
+				});
+		});
+
+		async.parallel(parallel, function(error) {
+			if (error)
+				return fail(error);
+
+			success(results);
+		});
+	}, fail);
+}
+
+function queryImdb(item, success, fail) {
+	fail = fail || perror;
+
+	if ('magnet' in item === false)
+		return fail(new Error('No magnet data.'));
+
+	if ('dn' in item.magnet === false)
+		return fail(new Error('No magnet name.'));
+
+	imdb.getReq({
+		name: item.magnet.dn.toLowerCase().split('(')[0].split('720')[0].split('1080')[0].replace(/^\s+/, '').replace(/\s+$/, '')
+	}, function(error, result) {
+		if (error)
+			return; // fail(error);
+
+		success(result);
+	});
+}
+
+function addImdb(results, success, fail) {
+	fail = fail || perror;
+	var parallel = [];
+
+	results.forEach(function(result) {
+		parallel.push(function(callback) {
+			(function(result) {
+				queryImdb(result, function(imdbdata) {
+					result.imdb = imdbdata;
+					callback();
+				});
+			})(result);
+		});
+	});
+
+	async.parallel(parallel, function(error) {
+		if (error)
+			return fail(error);
+
+		success(results);
+	});
+}
+
 exports.categories = categories;
 exports.top = top;
 exports.search = search;
+
+/*top(categories.video.hdmovies, function(results) {
+	addInfo(results.slice(0, 4), function(results) {
+		console.log(results);
+	});
+});*/
