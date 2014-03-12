@@ -14,9 +14,9 @@ How to use
 ```javascript
 var pirateship = require('pirateship');
 
-pirateship.top(pirateship.categories.hdmovies, function(results) {
-	console.log(results);
+pirateship.top(pirateship.categories.video.hdmovies, function(results) {
+    console.log(results);
 }, function(error) {
-	console.error(error);
+    console.error(error);
 });
 ```

@@ -175,9 +175,5 @@ function top(category, success, fail, tries) {
 	}, fail);
 }
 
-top(categories.video.hdmovies, function(results) {
-	console.log(results);
-});
-
 exports.categories = categories;
 exports.top = top;
