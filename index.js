@@ -30,7 +30,7 @@ var categories = {
 		handheld: 304,
 		ios: 305,
 		android: 306,
-		other os: 399
+		other: 399
 	},
 	games: {
 		pc: 401,
