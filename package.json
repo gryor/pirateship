@@ -1,0 +1,26 @@
+{
+  "name": "pirateship",
+  "version": "0.0.1",
+  "description": "Query piratebay",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wilhelmmatilainen/pirateship.git"
+  },
+  "keywords": [
+    "pirateship",
+    "piratebay",
+    "torrent",
+    "magnet",
+    "query"
+  ],
+  "author": "Wilhelm Matilainen",
+  "license": "Affero GPL",
+  "bugs": {
+    "url": "https://github.com/wilhelmmatilainen/pirateship/issues"
+  },
+  "homepage": "https://github.com/wilhelmmatilainen/pirateship"
+}
