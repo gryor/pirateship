@@ -2,6 +2,7 @@ pirateship
 ==========
 
 Sail in the dark waters of the PirateBay.
+Pirateship will automatically select the best proxy or use direct connection if possible.
 
 Install
 ==========
