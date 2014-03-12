@@ -145,7 +145,7 @@ function parseResultsPage(body, success, fail) {
 			return magnet(uri);
 		}).map(function(e) {
 			if (e.dn)
-				e.dn = decodeURI(e.dn).replace(/\+/g, ' ');
+				e.dn = unescape(decodeURI(e.dn).replace(/\+/g, ' '));
 
 			return e;
 		}));
