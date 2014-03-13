@@ -1,6 +1,6 @@
 {
   "name": "pirateship",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Sail in the dark waters of the PirateBay.",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,6 @@
     "request": "^2.34.0",
     "url": "^0.7.9",
     "async": "^0.2.10",
-    "magnet-uri": "^1.1.0",
-    "imdb-api": "^1.3.3"
+    "magnet-uri": "^1.1.0"
   }
 }

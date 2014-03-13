@@ -2,7 +2,6 @@ var request = require('request');
 var url = require('url');
 var async = require('async');
 var magnet = require('magnet-uri');
-var imdb = require('imdb-api');
 
 var categories = {
 	audio: {
@@ -140,8 +139,6 @@ function getBestProxy(success, fail) {
 }
 
 function parseResultsPage(body, success, fail) {
-	console.log('Parsing results');
-
 	if (body.match('<table id="searchResult">') !== null) {
 		var data = body.split('detName');
 		data.shift();
@@ -168,8 +165,6 @@ function parseResultsPage(body, success, fail) {
 			return e !== undefined;
 		});
 
-		console.log(data.length + ' results');
-
 		success(data);
 	} else {
 		return fail();
@@ -179,8 +174,6 @@ function parseResultsPage(body, success, fail) {
 function top(category, success, fail, tries) {
 	fail = fail || perror;
 	tries = tries || 1;
-
-	console.log('top try ' + tries);
 
 	if (tries > 5)
 		return fail(new Error('Can not connect to the piratebay.'));
@@ -202,8 +195,6 @@ function top(category, success, fail, tries) {
 function search(category, query, success, fail, tries) {
 	fail = fail || perror;
 	tries = tries || 1;
-
-	console.log('search try ' + tries);
 
 	if (tries > 5)
 		return fail(new Error('Can not connect to the piratebay.'));
@@ -242,7 +233,7 @@ function addInfo(results, success, fail) {
 
 							if(match !== null)
 								result.imdburl = url.parse([1]);
-							
+
 							callback();
 						});
 					})(result);
@@ -258,54 +249,7 @@ function addInfo(results, success, fail) {
 	}, fail);
 }
 
-function queryImdb(item, success, fail) {
-	fail = fail || perror;
-
-	if ('magnet' in item === false)
-		return fail(new Error('No magnet data.'));
-
-	if ('dn' in item.magnet === false)
-		return fail(new Error('No magnet name.'));
-
-	imdb.getReq({
-		name: item.magnet.dn.toLowerCase().split('(')[0].split('720')[0].split('1080')[0].replace(/^\s+/, '').replace(/\s+$/, '')
-	}, function(error, result) {
-		if (error)
-			return; // fail(error);
-
-		success(result);
-	});
-}
-
-function addImdb(results, success, fail) {
-	fail = fail || perror;
-	var parallel = [];
-
-	results.forEach(function(result) {
-		parallel.push(function(callback) {
-			(function(result) {
-				queryImdb(result, function(imdbdata) {
-					result.imdb = imdbdata;
-					callback();
-				});
-			})(result);
-		});
-	});
-
-	async.parallel(parallel, function(error) {
-		if (error)
-			return fail(error);
-
-		success(results);
-	});
-}
-
 exports.categories = categories;
 exports.top = top;
 exports.search = search;
-
-/*top(categories.video.hdmovies, function(results) {
-	addInfo(results.slice(0, 4), function(results) {
-		console.log(results);
-	});
-});*/
+exports.info = addInfo;
